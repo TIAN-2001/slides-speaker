@@ -8,6 +8,7 @@ var loadingSpinnerSave = document.getElementById("loadingSpinnerSave");
 var saveBtn = document.getElementById("saveBtn");
 var modelChoice = document.getElementById("modelChoice");
 var styleChoice = document.getElementById("styleChoice");
+var lengthChoice = document.getElementById("lengthChoice");
 var apiKeyInput = document.getElementById("apiKeyInput")
 var narrateBtn = document.getElementById("narrateBtn");
 var audioDiv = document.getElementById("audioDiv");
@@ -167,6 +168,25 @@ async function generateScript() {
 async function getResultFromOpenAI(imageUrls) {
   // get style choice
   var style = styleChoice.value;
+  var length = lengthChoice.value;
+  var timePerSlide = 0; // in units of seconds
+  var averageReadingSpeed = 130; // words per minute
+
+  switch (length) {
+    case "short":
+      timePerSlide = 15;
+      break;
+    case "medium":
+      timePerSlide = 30;
+      break;
+    case "long":
+      timePerSlide = 45;
+      break;
+    default:
+      timePerSlide = 30;
+  }
+
+  var wordsPerSlide = Math.round(timePerSlide / 60 * averageReadingSpeed);
 
   // Build messages array based on imageUrls
   const messages = [
@@ -174,8 +194,8 @@ async function getResultFromOpenAI(imageUrls) {
       role: "user",
       content: [
         { type: "text", text: `Analyze the images in such a way that you are doing a presentation. \
-        Pretend that you are presenting to an audience. The user will give you the slides in order from first to last. Most importantly, each image is 1 slide. For title slides with less than 10 words, make the script one that transitions to the new title. Each individual slide should have a narrative that is relevant to the slide. Each slide should be more than 2 sentences. Do not use big bold words. Do not write the slide numbers. Do not repeat points that have already been made in the script.\
-        Make the presentation in the style of ${style}.`
+        Pretend that you are presenting to an audience. The user will give you the slides in order from first to last. Most importantly, each image is 1 slide. For title slides with less than 10 words, make the script one that transitions to the new title. Each individual slide should have a narrative that is relevant to the slide. Each slide should be using ${wordsPerSlide} words. Do not use big bold words. Do not write the slide numbers. Do not repeat points that have already been made in the script.\
+        Make the presentation in the style of ${style}. Make the script one paragraph for each page.`
         },
       ],
     },
@@ -317,7 +337,8 @@ async function saveButton(){
     voiceChoice.disabled = false;
     dragDropInput.disabled = false;
     modelChoice.disabled = false;
-    styleChoice.disabled = false;    
+    styleChoice.disabled = false;  
+    lengthChoice.disabled = false;  
     // scriptText.disabled = false;
     submitBtn.disabled = false;
     scriptText.contentEditable = true;
@@ -327,6 +348,7 @@ async function saveButton(){
     voiceChoice.classList.add("cursor-pointer");
     modelChoice.classList.add("cursor-pointer");
     styleChoice.classList.add("cursor-pointer");
+    lengthChoice.classList.add("cursor-pointer");
     closeModal();
   }
 }
